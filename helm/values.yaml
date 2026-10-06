@@ -1,0 +1,33 @@
+backend:
+  replicaCount: 1
+
+  image:
+    repository: next-up-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 8000
+    targetPort: 8000
+
+frontend:
+  replicaCount: 1
+
+  image:
+    repository: next-up-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 80
+    targetPort: 80
+
+config:
+  environment: production
+
+secret:
+  databaseUrl: ""
+
+ingress:
+  enabled: true
+  className: nginx

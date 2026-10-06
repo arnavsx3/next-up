@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: next-up-config
-  namespace: next-up
-data:
-  # Non-sensitive configuration goes here
-  ENVIRONMENT: "production"
