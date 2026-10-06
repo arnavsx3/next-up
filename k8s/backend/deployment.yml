@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-up-backend-deployment
+  namespace: next-up
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: next-up-backend
+  template:
+    metadata:
+      labels:
+        app: next-up-backend
+    spec:
+      containers:
+        - name: backend
+          image: next-up-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: next-up-secrets
+            - configMapRef:
+                name: next-up-config
