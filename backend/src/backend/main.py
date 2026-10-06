@@ -20,17 +20,17 @@ app.add_middleware(
 app.include_router(queue_router)
 
 
-@app.get("/")
+@app.get("/api/")
 def root():
     return {"message": "NextUp API is running"}
 
 
-@app.get("/db-test")
+@app.get("/api/db-test")
 def db_test():
     with engine.connect() as connection:
         result = connection.execute(text("SELECT 1"))
         return {"database": result.scalar()}
 
-@app.get("/health")
+@app.get("/api/health")
 def health():
     return {"status": "healthy"}
