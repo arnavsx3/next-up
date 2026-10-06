@@ -1,139 +1,114 @@
 # NextUp
 
-A simple queue management application where users can create and join queues using a unique room code.
-
-Built as a hands-on Kubernetes, monitoring, autoscaling, and load-testing project.
+A simple queue management application built as a hands-on Kubernetes, Helm, autoscaling, and load-testing project.
 
 ## Architecture
 
-```text
-Cloudflare Tunnel
-        ↓
-NGINX Ingress
-        ↓
-React + Vite
-        ↓
-FastAPI
-        ↓
-Neon PostgreSQL
-```
+React + Vite → FastAPI → Neon PostgreSQL
+
+Kubernetes:
+NGINX Ingress → Frontend / Backend
+HPA → Pod autoscaling
+k6 → Load testing
 
 ## Tech Stack
 
-- **Frontend:** React, Vite
-- **Backend:** Python, FastAPI, uv
-- **Database:** Neon PostgreSQL
-- **Web Server:** Nginx
-- **Containerization:** Docker, Docker Compose
-- **Orchestration:** Kubernetes, Kind, kubectl
-- **Packaging:** Helm
-- **Autoscaling:** HPA, VPA
-- **Monitoring:** Prometheus, Grafana
-- **Load Testing:** k6
-- **External Access:** Cloudflare Tunnel
+- Frontend: React, Vite
+- Backend: Python, FastAPI, uv
+- Database: Neon PostgreSQL
+- ORM: SQLAlchemy
+- Containerization: Docker, Docker Compose
+- Kubernetes: Kubernetes, Kind, kubectl
+- Packaging: Helm
+- Ingress: NGINX Ingress Controller
+- Autoscaling: HPA
+- Metrics: Kubernetes Metrics Server
+- Load Testing: k6
+
+## Prerequisites
+
+Install:
+
+- Docker
+- Kind
+- kubectl
+- Helm
+- Python
+- uv
+- Node.js + npm
+- k6
+
+## Dependencies
+
+### Backend
+
+- FastAPI
+- Uvicorn
+- SQLAlchemy
+- PostgreSQL driver
+- python-dotenv
+
+### Frontend
+
+- React
+- Vite
+- npm
 
 ## Kubernetes
 
-### 1. Create Cluster
-
-```bash
-kind create cluster --name next-up --config k8s/kind/config.yml
-```
+Kind cluster:
 
 - 1 control-plane
 - 3 workers
-- Control-plane labeled `ingress-ready=true`
-- Control-plane tainted `ingress-ready=true:NoSchedule`
-- Host ports `80/443` → control-plane
+- NGINX Ingress Controller
+- Metrics Server
+- Helm
+- HPA
 
-### 2. Load Images
+## Deployment
 
-```bash
-kind load docker-image next-up-backend:latest --name next-up
-kind load docker-image next-up-frontend:latest --name next-up
-```
+Set the database URL:
 
-### 3. Apply Application Resources
+    export DATABASE_URL="your-neon-database-url"
 
-```bash
-kubectl apply -f k8s/namespace.yml
-kubectl apply -f k8s/configmaps.yml
-kubectl apply -f k8s/secrets.yml
+Create the Kind cluster:
 
-kubectl apply -f k8s/backend/
-kubectl apply -f k8s/frontend/
-```
+    kind create cluster --name next-up --config k8s/kind/config.yml
 
-### 4. Install NGINX Ingress
+Run the deployment script:
 
-```bash
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-```
+    ./deploy.sh
 
-### 5. Patch Ingress Controller
+The script automatically:
 
-Schedule it on the `ingress-ready` control-plane and allow it to tolerate the taint:
+- Builds frontend and backend Docker images
+- Loads images into Kind
+- Installs and configures NGINX Ingress
+- Installs and configures Metrics Server
+- Deploys the application with Helm
 
-```bash
-kubectl patch deployment ingress-nginx-controller -n ingress-nginx \
-  --type='strategic' \
-  -p '
-spec:
-  template:
-    spec:
-      nodeSelector:
-        ingress-ready: "true"
-      tolerations:
-        - key: ingress-ready
-          operator: Equal
-          value: "true"
-          effect: NoSchedule
-'
-```
+## Verify
 
-### 6. Apply Ingress
+    kubectl get pods -n next-up
+    kubectl get services -n next-up
+    kubectl get ingress -n next-up
+    kubectl get hpa -n next-up
 
-```bash
-kubectl apply -f k8s/ingress/ingress.yml
-```
+Test the application:
 
-### 7. Verify
+    curl http://localhost/
+    curl http://localhost/api/health
 
-```bash
-kubectl get nodes
-kubectl get pods -n next-up
-kubectl get services -n next-up
-kubectl get pods -n ingress-nginx -o wide
-kubectl get ingress -n next-up
-```
+## Load Testing
 
-### 8. Test
+Run:
 
-```bash
-curl http://localhost/
-curl http://localhost/api/health
-```
+    k6 run k6/load-test.js
 
-## Kubernetes Flow
+Watch HPA:
 
-```text
-localhost:80
-     ↓
-Kind Control Plane
-     ↓
-NGINX Ingress Controller
-     ├── /      → frontend-service:80
-     └── /api/* → backend-service:8000
-```
+    kubectl get hpa -n next-up -w
 
-## Rebuild After Code Changes
+Watch pods:
 
-```bash
-docker build -t next-up-backend:latest ./backend
-kind load docker-image next-up-backend:latest --name next-up
-kubectl rollout restart deployment next-up-backend-deployment -n next-up
-
-docker build -t next-up-frontend:latest ./frontend
-kind load docker-image next-up-frontend:latest --name next-up
-kubectl rollout restart deployment next-up-frontend-deployment -n next-up
-```
+    kubectl get pods -n next-up -w
