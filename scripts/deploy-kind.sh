@@ -31,6 +31,27 @@ spec:
           effect: NoSchedule
 '
 
+echo "==> Installing Metrics Server..."
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+echo "==> Patching Metrics Server for Kind..."
+kubectl patch deployment metrics-server -n kube-system \
+  --type='json' \
+  -p='[
+    {
+      "op": "add",
+      "path": "/spec/template/spec/containers/0/args/-",
+      "value": "--kubelet-insecure-tls"
+    }
+  ]'
+
+# echo "==> Installing VPA..."
+# git clone https://github.com/kubernetes/autoscaler.git
+# cd autoscaler/vertical-pod-autoscaler
+# ./hack/vpa-up.sh
+# cd ../..
+# rm -rf autoscaler
+
 echo "==> Deploying Next-Up with Helm..."
 helm upgrade --install next-up ./helm \
   --namespace next-up \
