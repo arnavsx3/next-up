@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..db.base import Base
 
+
 class QueueUser(Base):
     __tablename__ = "queue_users"
 

@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 
-from . import models
 from .api.routes.queue import router as queue_router
 from .db.base import Base
 from .db.database import engine

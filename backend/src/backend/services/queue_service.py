@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from ..models.queue import Queue
 from ..models.queue_user import QueueUser
 
-
 ADJECTIVES = [
     "sleepy",
     "angry",

@@ -1,10 +1,11 @@
+# ruff: noqa: B008
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ...db.database import get_db
 from ...schemas.queue import QueueResponse
-from ...schemas.queue_user import QueueResponse, QueueUserResponse
-from ...services.queue_service import create_queue, join_queue
+from ...schemas.queue_user import QueueListResponse, QueueUserResponse
 from ...services.queue_service import (
     create_queue,
     get_queue_users,
@@ -16,8 +17,7 @@ router = APIRouter(prefix="/queues", tags=["queues"])
 
 @router.post("/", response_model=QueueResponse)
 def create_new_queue(db: Session = Depends(get_db)):
-    queue = create_queue(db)
-    return queue
+    return create_queue(db)
 
 
 @router.post("/{room_code}/join", response_model=QueueUserResponse)
@@ -45,7 +45,8 @@ def join_existing_queue(
         "position": position,
     }
 
-@router.get("/{room_code}", response_model=QueueResponse)
+
+@router.get("/{room_code}", response_model=QueueListResponse)
 def get_queue(
     room_code: str,
     db: Session = Depends(get_db),

@@ -6,6 +6,6 @@ class QueueUserResponse(BaseModel):
     position: int
 
 
-class QueueResponse(BaseModel):
+class QueueListResponse(BaseModel):
     room_code: str
     users: list[QueueUserResponse]
