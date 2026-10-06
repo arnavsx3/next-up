@@ -1,29 +1,29 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { createQueue, joinQueue } from "../services/api"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { createQueue, joinQueue } from "../services/api";
 
 function Home() {
-  const [roomCode, setRoomCode] = useState("")
-  const [message, setMessage] = useState("")
-  const navigate = useNavigate()
+  const [roomCode, setRoomCode] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   async function handleCreate() {
-  try {
-    const queue = await createQueue()
-    navigate(`/queue/${queue.room_code}`)
-  } catch {
-    setMessage("FAILED TO CREATE QUEUE")
+    try {
+      const queue = await createQueue();
+      navigate(`/queue/${queue.room_code}`);
+    } catch {
+      setMessage("FAILED TO CREATE QUEUE");
+    }
   }
-}
 
   async function handleJoin() {
-  try {
-    await joinQueue(roomCode)
-    navigate(`/queue/${roomCode}`)
-  } catch {
-    setMessage("QUEUE NOT FOUND")
+    try {
+      await joinQueue(roomCode);
+      navigate(`/queue/${roomCode}`);
+    } catch {
+      setMessage("QUEUE NOT FOUND");
+    }
   }
-}
 
   return (
     <main className="min-h-screen bg-[#12002b] text-green-400 font-mono flex items-center justify-center p-6">
@@ -60,9 +60,7 @@ function Home() {
         </div>
 
         {message && (
-          <p className="mt-8 text-center text-pink-500">
-            ★ {message} ★
-          </p>
+          <p className="mt-8 text-center text-pink-500">★ {message} ★</p>
         )}
 
         <p className="mt-10 text-center text-sm text-pink-500">
@@ -70,7 +68,7 @@ function Home() {
         </p>
       </div>
     </main>
-  )
+  );
 }
 
-export default Home
+export default Home;
