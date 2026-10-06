@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from ..models.queue import Queue
 from ..models.queue_user import QueueUser
 
+
 ADJECTIVES = [
     "sleepy",
     "angry",
@@ -66,3 +67,29 @@ def join_queue(db: Session, room_code: str) -> QueueUser | None:
     db.refresh(user)
 
     return user
+
+
+def get_queue_users(db: Session, room_code: str):
+    queue = (
+        db.query(Queue)
+        .filter(Queue.room_code == room_code)
+        .first()
+    )
+
+    if not queue:
+        return None
+
+    users = (
+        db.query(QueueUser)
+        .filter(QueueUser.queue_id == queue.id)
+        .order_by(QueueUser.id)
+        .all()
+    )
+
+    return [
+        {
+            "username": user.username,
+            "position": position,
+        }
+        for position, user in enumerate(users, start=1)
+    ]

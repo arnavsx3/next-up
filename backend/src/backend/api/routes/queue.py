@@ -3,8 +3,13 @@ from sqlalchemy.orm import Session
 
 from ...db.database import get_db
 from ...schemas.queue import QueueResponse
-from ...schemas.queue_user import QueueUserResponse
+from ...schemas.queue_user import QueueResponse, QueueUserResponse
 from ...services.queue_service import create_queue, join_queue
+from ...services.queue_service import (
+    create_queue,
+    get_queue_users,
+    join_queue,
+)
 
 router = APIRouter(prefix="/queues", tags=["queues"])
 
@@ -38,4 +43,22 @@ def join_existing_queue(
     return {
         "username": user.username,
         "position": position,
+    }
+
+@router.get("/{room_code}", response_model=QueueResponse)
+def get_queue(
+    room_code: str,
+    db: Session = Depends(get_db),
+):
+    users = get_queue_users(db, room_code)
+
+    if users is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Queue not found",
+        )
+
+    return {
+        "room_code": room_code,
+        "users": users,
     }
