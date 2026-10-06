@@ -10,6 +10,14 @@ backend:
     port: 8000
     targetPort: 8000
 
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
 frontend:
   replicaCount: 1
 
@@ -21,6 +29,14 @@ frontend:
   service:
     port: 80
     targetPort: 80
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
 
 config:
   environment: production

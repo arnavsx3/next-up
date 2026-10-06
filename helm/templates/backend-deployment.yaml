@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: next-up-backend-deployment
-  namespace: {{ .Release.Namespace }}
+  namespace: { { .Release.Namespace } }
 spec:
-  replicas: {{ .Values.backend.replicaCount }}
+  replicas: { { .Values.backend.replicaCount } }
   selector:
     matchLabels:
       app: next-up-backend
@@ -16,9 +16,10 @@ spec:
       containers:
         - name: backend
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
-          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          imagePullPolicy: { { .Values.backend.image.pullPolicy } }
           ports:
             - containerPort: 8000
+          resources: { { - toYaml .Values.backend.resources | nindent 12 } }
           envFrom:
             - secretRef:
                 name: next-up-secrets
