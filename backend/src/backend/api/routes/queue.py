@@ -10,6 +10,7 @@ from ...services.queue_service import (
     create_queue,
     get_queue_users,
     join_queue,
+    leave_queue,
 )
 
 router = APIRouter(prefix="/queues", tags=["queues"])
@@ -63,3 +64,19 @@ def get_queue(
         "room_code": room_code,
         "users": users,
     }
+
+@router.delete("/{room_code}/users/{user_id}")
+def leave_existing_queue(
+    room_code: str,
+    user_id: int,
+    db: Session = Depends(get_db),
+):
+    success = leave_queue(db, room_code, user_id)
+
+    if not success:
+        raise HTTPException(
+            status_code=404,
+            detail="Queue or user not found",
+        )
+
+    return {"message": "User left the queue"}

@@ -92,3 +92,30 @@ def get_queue_users(db: Session, room_code: str):
         }
         for position, user in enumerate(users, start=1)
     ]
+
+def leave_queue(db: Session, room_code: str, user_id: int) -> bool:
+    queue = (
+        db.query(Queue)
+        .filter(Queue.room_code == room_code)
+        .first()
+    )
+
+    if not queue:
+        return False
+
+    user = (
+        db.query(QueueUser)
+        .filter(
+            QueueUser.id == user_id,
+            QueueUser.queue_id == queue.id,
+        )
+        .first()
+    )
+
+    if not user:
+        return False
+
+    db.delete(user)
+    db.commit()
+
+    return True
