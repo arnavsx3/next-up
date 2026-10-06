@@ -30,3 +30,7 @@ def db_test():
     with engine.connect() as connection:
         result = connection.execute(text("SELECT 1"))
         return {"database": result.scalar()}
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}

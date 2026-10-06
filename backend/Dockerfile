@@ -3,6 +3,8 @@ FROM python:3.14-slim AS builder
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
+COPY README.md ./
+COPY src ./src
 
 RUN pip install --no-cache-dir uv \
     && uv sync --frozen --no-dev
@@ -13,7 +15,7 @@ FROM python:3.14-slim AS runtime
 WORKDIR /app
 
 COPY --from=builder /app/.venv /app/.venv
-COPY src ./src
+COPY --from=builder /app/src ./src
 
 ENV PATH="/app/.venv/bin:$PATH"
 
