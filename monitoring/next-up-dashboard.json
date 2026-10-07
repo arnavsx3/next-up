@@ -1,0 +1,70 @@
+{
+  "id": null,
+  "uid": "next-up-hpa",
+  "title": "next-up HPA",
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Pods per deployment (and HPA desired)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": "desired.*" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [10, 10] } },
+              { "id": "custom.lineWidth", "value": 3 }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "legendFormat": "{{deployment}}",
+          "expr": "kube_deployment_status_replicas{namespace=\"next-up\"}"
+        },
+        {
+          "refId": "B",
+          "legendFormat": "desired {{horizontalpodautoscaler}}",
+          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"next-up\"}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "CPU usage per pod (cores)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "legendFormat": "{{pod}}",
+          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"next-up\", container!=\"\", container!=\"POD\"}[1m]))"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "CPU % of request (what the HPA watches)",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "legendFormat": "{{pod}}",
+          "expr": "100 * sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"next-up\", container!=\"\", container!=\"POD\"}[1m])) / sum by (pod) (kube_pod_container_resource_requests{namespace=\"next-up\", resource=\"cpu\"})"
+        }
+      ]
+    }
+  ]
+}

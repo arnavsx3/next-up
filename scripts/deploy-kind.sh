@@ -36,13 +36,13 @@ kubectl wait \
   --for=condition=complete \
   job/ingress-nginx-admission-create \
   -n ingress-nginx \
-  --timeout=220s
+  --timeout=180s
 
 echo "==> Waiting for NGINX Ingress Controller..."
 kubectl rollout status \
   deployment/ingress-nginx-controller \
   -n ingress-nginx \
-  --timeout=220s
+  --timeout=180s
 
 echo "==> Installing Metrics Server..."
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
@@ -71,10 +71,16 @@ kubectl rollout status \
 # cd ../..
 # rm -rf autoscaler
 
+echo "==> Creating app secret from backend/.env..."
+kubectl create namespace next-up --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic next-up-secrets \
+  --namespace next-up \
+  --from-env-file=backend/.env \
+  --dry-run=client -o yaml | kubectl apply -f -
+
 echo "==> Deploying Next-Up with Helm..."
 helm upgrade --install next-up ./helm \
   --namespace next-up \
-  --create-namespace \
-  --set-string secret.databaseUrl="$DATABASE_URL"
+  --create-namespace
 
 echo "==> Deployment complete!"
