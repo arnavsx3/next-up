@@ -31,8 +31,18 @@ spec:
           effect: NoSchedule
 '
 
+echo "==> Waiting for Ingress admission setup..."
+kubectl wait \
+  --for=condition=complete \
+  job/ingress-nginx-admission-create \
+  -n ingress-nginx \
+  --timeout=180s
+
 echo "==> Waiting for NGINX Ingress Controller..."
-kubectl rollout status deployment/ingress-nginx-controller -n ingress-nginx --timeout=180s
+kubectl rollout status \
+  deployment/ingress-nginx-controller \
+  -n ingress-nginx \
+  --timeout=180s
 
 echo "==> Installing Metrics Server..."
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
@@ -49,7 +59,10 @@ kubectl patch deployment metrics-server -n kube-system \
   ]'
 
 echo "==> Waiting for Metrics Server..."
-kubectl rollout status deployment/metrics-server -n kube-system --timeout=180s
+kubectl rollout status \
+  deployment/metrics-server \
+  -n kube-system \
+  --timeout=180s
 
 # echo "==> Installing VPA..."
 # git clone https://github.com/kubernetes/autoscaler.git
