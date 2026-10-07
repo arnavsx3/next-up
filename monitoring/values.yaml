@@ -1,0 +1,25 @@
+prometheus:
+  prometheusSpec:
+    retention: 7d
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+
+grafana:
+  persistence:
+    enabled: true
+    size: 1Gi
+
+  adminPassword: admin
+
+  service:
+    type: ClusterIP
+
+alertmanager:
+  enabled: false
