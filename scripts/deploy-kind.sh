@@ -36,13 +36,13 @@ kubectl wait \
   --for=condition=complete \
   job/ingress-nginx-admission-create \
   -n ingress-nginx \
-  --timeout=180s
+  --timeout=220s
 
 echo "==> Waiting for NGINX Ingress Controller..."
 kubectl rollout status \
   deployment/ingress-nginx-controller \
   -n ingress-nginx \
-  --timeout=180s
+  --timeout=220s
 
 echo "==> Installing Metrics Server..."
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
